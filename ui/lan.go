@@ -11,7 +11,7 @@ import (
 	"net"
 )
 
-type model struct {
+type LAN struct {
 	iface    iface.Iface
 	poisoner *poisoner.Poisoner
 
@@ -19,19 +19,15 @@ type model struct {
 	poisonedIps map[string]struct{}
 }
 
-type DevicesMsg []lanscanner.Device
-
 const (
-	numColumns     = 4
-	numRows        = 10
-	poisonedStatus = "POISONED"
-	defaultStatus  = ""
-	gatewayStatus  = "GATEWAY"
-	usStatus       = "US"
+	poisonedStatus   = "POISONED"
+	defaultStatus    = ""
+	gatewayStatus    = "GATEWAY"
+	thisDeviceStatus = "US"
 )
 
-func GetProgram(iface iface.Iface) *tea.Program {
-	columns := [numColumns]table.Column{
+func GetLANModel(iface iface.Iface) tea.Model {
+	columns := []table.Column{
 		{Title: "Status", Width: 9},
 		{Title: "IP", Width: 15},
 		{Title: "MAC", Width: 17},
@@ -39,21 +35,20 @@ func GetProgram(iface iface.Iface) *tea.Program {
 	}
 
 	t := table.New(
-		table.WithColumns(columns[:]),
+		table.WithColumns(columns),
 		table.WithRows([]table.Row{}),
 		table.WithFocused(true),
-		table.WithHeight(numRows),
+		table.WithHeight(NumRows),
 	)
 
-	m := model{iface, nil, t, map[string]struct{}{}}
-	return tea.NewProgram(&m)
+	return LAN{iface, nil, t, map[string]struct{}{}}
 }
 
-func (m *model) Init() tea.Cmd {
+func (m LAN) Init() tea.Cmd {
 	return nil
 }
 
-func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m LAN) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -68,7 +63,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", " ":
 			return m.togglePoisoning()
 		}
-	case DevicesMsg:
+	case lanscanner.DeviceList:
 		return m.updateDeviceList(msg)
 	}
 
@@ -76,13 +71,13 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *model) View() string {
+func (m LAN) View() string {
 	s := fmt.Sprintf("# devices found: %d\n", len(m.table.Rows()))
 	s += m.table.View()
 	return s
 }
 
-func (m *model) unPoisonEveryone() {
+func (m LAN) unPoisonEveryone() {
 	for _, row := range m.table.Rows() {
 		ipAsString := row[1]
 		macAsString := row[2]
@@ -100,7 +95,7 @@ func (m *model) unPoisonEveryone() {
 	}
 }
 
-func (m *model) togglePoisoning() (tea.Model, tea.Cmd) {
+func (m LAN) togglePoisoning() (tea.Model, tea.Cmd) {
 	idx := m.table.Cursor()
 	selectedRow := m.table.SelectedRow()
 	status := selectedRow[0]
@@ -127,8 +122,8 @@ func (m *model) togglePoisoning() (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *model) updateDeviceList(msg DevicesMsg) (tea.Model, tea.Cmd) {
-	newRows := make([]table.Row, len(msg))
+func (m LAN) updateDeviceList(deviceList lanscanner.DeviceList) (tea.Model, tea.Cmd) {
+	newRows := make([]table.Row, len(deviceList))
 
 	selectedRow := m.table.SelectedRow()
 	var selectedIP string
@@ -140,18 +135,29 @@ func (m *model) updateDeviceList(msg DevicesMsg) (tea.Model, tea.Cmd) {
 
 	cursor := m.table.Cursor()
 
-	for idx, device := range msg {
-		m.createPoisonerIfItDoesNotExist(device.Ip, device.Mac)
+	for idx, device := range deviceList {
+		// Create poisoner if it does not exist
+		if m.poisoner == nil && m.iface.GatewayIP.String() == device.Ip.String() {
+			m.poisoner = poisoner.NewPoisoner(m.iface, device.Mac)
+			go m.poisoner.Run()
+		}
+
 		if device.Ip.String() == selectedIP {
 			cursor = idx
 		}
 
-		newRow := make(table.Row, numColumns)
+		newRow := make(table.Row, 4)
 
 		newRow[0] = m.getStatus(device.Ip, device.Mac)
 		newRow[1] = device.Ip.String()
 		newRow[2] = device.Mac.String()
 		newRow[3] = device.Manufacturer
+		// Fake MAC and manufacturer
+		// madeUpMAC := net.HardwareAddr{byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256))}
+		// madeUpManufacturers := []string{"ImaginaryTech", "Nonexistent Company", "Made-up Corp."}
+		// newRow[2] = madeUpMAC.String()
+		// newRow[3] = madeUpManufacturers[rand.Intn(len(madeUpManufacturers))]
+
 		newRows[idx] = newRow
 	}
 
@@ -161,13 +167,13 @@ func (m *model) updateDeviceList(msg DevicesMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *model) getStatus(ip net.IP, mac net.HardwareAddr) string {
+func (m LAN) getStatus(ip net.IP, mac net.HardwareAddr) string {
 	if m.iface.GatewayIP.String() == ip.String() {
 		return gatewayStatus
 	}
 
 	if m.iface.HardwareAddr.String() == mac.String() {
-		return usStatus
+		return thisDeviceStatus
 	}
 
 	_, isPoisoned := m.poisonedIps[ip.String()]
@@ -175,12 +181,5 @@ func (m *model) getStatus(ip net.IP, mac net.HardwareAddr) string {
 		return poisonedStatus
 	} else {
 		return defaultStatus
-	}
-}
-
-func (m *model) createPoisonerIfItDoesNotExist(ip net.IP, mac net.HardwareAddr) {
-	if m.poisoner == nil && m.iface.GatewayIP.String() == ip.String() {
-		m.poisoner = poisoner.NewPoisoner(m.iface, mac)
-		go m.poisoner.Run()
 	}
 }

@@ -8,37 +8,20 @@ import (
 	"MITM/sniffer/modules"
 	"MITM/ui"
 	"fmt"
-	"net"
+	"time"
 )
 
+const dbFilename = "logs.db"
+
 func main() {
-	// runPersistance()
-	// runSniffer()
-	runUI()
-}
-
-func runPersistance() {
-	sqlite := persistance.CreateSQLite("test.db")
-	sqlite.Save("test", net.IP{192, 168, 1, 1}, net.HardwareAddr{0xff, 0xff, 0xff, 0xff, 0xff, 0xff}, "testing message")
-}
-
-func runSniffer() {
 	validIface := iface.GetSingleIface()
-	repository := persistance.CreateSQLite("test.db")
-	snifferModules := []sniffer.Module{
-		modules.CreateDNSModule(repository),
-	}
+	repository := persistance.CreateSQLite(dbFilename)
 
-	sniffer.Sniff(validIface, snifferModules)
-}
-
-func runUI() {
-	validIface := iface.GetSingleIface()
 	scanner := lanscanner.NewScanner(validIface)
 	uiProgram := ui.GetProgram(validIface)
 
-	repository := persistance.CreateSQLite("test.db")
 	dnsModule := modules.CreateDNSModule(repository)
+	sniffingModules := []sniffer.Module{dnsModule}
 
 	if sniffer.IsRoot() {
 		sniffer.EnableIpForwarding()
@@ -47,13 +30,20 @@ func runUI() {
 	}
 
 	go func() {
-		scanner.Scan(func(devices []lanscanner.Device) {
-			uiProgram.Send(ui.DevicesMsg(devices))
+		scanner.Scan(func(deviceList lanscanner.DeviceList) {
+			uiProgram.Send(deviceList)
 		})
 	}()
 
 	go func() {
-		sniffer.Sniff(validIface, []sniffer.Module{dnsModule})
+		for {
+			uiProgram.Send(ui.LogMessage(repository.Load(ui.NumRows)))
+			time.Sleep(1 * time.Second)
+		}
+	}()
+
+	go func() {
+		sniffer.Sniff(validIface, sniffingModules)
 	}()
 
 	_, err := uiProgram.Run()

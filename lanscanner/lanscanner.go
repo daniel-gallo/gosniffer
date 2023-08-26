@@ -15,6 +15,8 @@ const (
 	timeBetweenScans = 5 * time.Second
 )
 
+type DeviceList []Device
+
 type Scanner struct {
 	iface             iface.Iface
 	MacToManufacturer map[string]string
@@ -31,7 +33,7 @@ func NewScanner(iface iface.Iface) Scanner {
 	}
 }
 
-func (scanner *Scanner) Scan(callback func(devices []Device)) {
+func (scanner *Scanner) Scan(callback func(devices DeviceList)) {
 	handle := scanner.iface.GetHandle()
 	err := handle.SetBPFFilter("arp")
 	if err != nil {
@@ -39,6 +41,7 @@ func (scanner *Scanner) Scan(callback func(devices []Device)) {
 	}
 
 	go scanner.readARP(handle, callback)
+	scanner.sendARPBroadcast(handle)
 	scanner.sendARPBroadcast(handle)
 	scanner.sendARPBroadcast(handle)
 	for {
@@ -58,7 +61,7 @@ func (scanner *Scanner) sendARPBroadcast(handle *pcap.Handle) {
 	}
 }
 
-func (scanner *Scanner) readARP(handle *pcap.Handle, callback func(devices []Device)) {
+func (scanner *Scanner) readARP(handle *pcap.Handle, callback func(devices DeviceList)) {
 	src := gopacket.NewPacketSource(handle, layers.LayerTypeEthernet)
 
 	for packet := range src.Packets() {
@@ -91,8 +94,8 @@ func (scanner *Scanner) isUsPoisoningSomeone(ip net.IP, mac net.HardwareAddr) bo
 	return ip.String() == scanner.iface.GatewayIP.String() && mac.String() == scanner.iface.HardwareAddr.String()
 }
 
-func (scanner *Scanner) getDeviceList() []Device {
-	deviceList := make([]Device, len(scanner.IpToDevice))
+func (scanner *Scanner) getDeviceList() DeviceList {
+	deviceList := make(DeviceList, len(scanner.IpToDevice))
 
 	i := 0
 	for _, device := range scanner.IpToDevice {
