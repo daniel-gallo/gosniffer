@@ -1,11 +1,11 @@
 package lanscanner
 
 import (
-	"MITM/arp"
-	"MITM/iface"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
+	"gosniffer/arp"
+	"gosniffer/iface"
 	"net"
 	"sort"
 	"time"

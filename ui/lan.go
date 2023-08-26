@@ -1,13 +1,13 @@
 package ui
 
 import (
-	"MITM/iface"
-	"MITM/lanscanner"
-	"MITM/poisoner"
-	"MITM/sniffer"
 	"fmt"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
+	"gosniffer/iface"
+	"gosniffer/lanscanner"
+	"gosniffer/poisoner"
+	"gosniffer/sniffer"
 	"net"
 )
 

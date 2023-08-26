@@ -1,10 +1,10 @@
 package ui
 
 import (
-	"MITM/persistance"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"gosniffer/persistance"
 	"time"
 )
 
@@ -18,7 +18,7 @@ func GetLogsModel() tea.Model {
 	columns := []table.Column{
 		{Title: "Module", Width: 6},
 		{Title: "When", Width: 14},
-		{Title: "IP", Width: 14},
+		{Title: "IP", Width: 16},
 		{Title: "Message", Width: 40},
 	}
 

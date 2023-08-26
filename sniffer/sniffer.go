@@ -1,8 +1,8 @@
 package sniffer
 
 import (
-	"MITM/iface"
 	"github.com/google/gopacket"
+	"gosniffer/iface"
 )
 
 func Sniff(iface iface.Iface, modules []Module) {

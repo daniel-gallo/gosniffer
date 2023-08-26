@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"MITM/iface"
+	"gosniffer/iface"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"

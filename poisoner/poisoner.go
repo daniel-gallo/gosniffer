@@ -1,9 +1,9 @@
 package poisoner
 
 import (
-	"MITM/arp"
-	"MITM/iface"
 	"github.com/google/gopacket/pcap"
+	"gosniffer/arp"
+	"gosniffer/iface"
 	"net"
 	"time"
 )

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"MITM/iface"
-	"MITM/lanscanner"
-	"MITM/persistance"
-	"MITM/sniffer"
-	"MITM/sniffer/modules"
-	"MITM/ui"
 	"fmt"
+	"gosniffer/iface"
+	"gosniffer/lanscanner"
+	"gosniffer/persistance"
+	"gosniffer/sniffer"
+	"gosniffer/sniffer/modules"
+	"gosniffer/ui"
 	"time"
 )
 

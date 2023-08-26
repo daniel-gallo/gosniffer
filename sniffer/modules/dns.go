@@ -1,11 +1,11 @@
 package modules
 
 import (
-	"MITM/persistance"
-	"MITM/sniffer"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	_ "github.com/mattn/go-sqlite3"
+	"gosniffer/persistance"
+	"gosniffer/sniffer"
 )
 
 type DNS struct {
