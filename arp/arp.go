@@ -6,17 +6,17 @@ import (
 	"net"
 )
 
-func GetARPRequestPacket(srcIP net.IP, srcMAC net.HardwareAddr, dstIP net.IP) []byte {
+func NewARPRequestPacket(srcIP net.IP, srcMAC net.HardwareAddr, dstIP net.IP) []byte {
 	broadcast := net.HardwareAddr{0xff, 0xff, 0xff, 0xff, 0xff, 0xff}
 
-	return getARPPacket(srcIP, srcMAC, dstIP, broadcast, layers.ARPRequest)
+	return newARPPacket(srcIP, srcMAC, dstIP, broadcast, layers.ARPRequest)
 }
 
-func GetARPReplyPacket(srcIP net.IP, srcMAC net.HardwareAddr, dstIP net.IP, dstMAC net.HardwareAddr) []byte {
-	return getARPPacket(srcIP, srcMAC, dstIP, dstMAC, layers.ARPReply)
+func NewARPReplyPacket(srcIP net.IP, srcMAC net.HardwareAddr, dstIP net.IP, dstMAC net.HardwareAddr) []byte {
+	return newARPPacket(srcIP, srcMAC, dstIP, dstMAC, layers.ARPReply)
 }
 
-func getARPPacket(srcIP net.IP, srcMAC net.HardwareAddr, dstIP net.IP, dstMAC net.HardwareAddr, operation uint16) []byte {
+func newARPPacket(srcIP net.IP, srcMAC net.HardwareAddr, dstIP net.IP, dstMAC net.HardwareAddr, operation uint16) []byte {
 	eth := layers.Ethernet{
 		SrcMAC:       srcMAC,
 		DstMAC:       dstMAC,

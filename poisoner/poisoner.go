@@ -62,7 +62,7 @@ func (poisoner *Poisoner) sendPoisonARP(victimIP net.IP, victimMAC net.HardwareA
 	gatewayIP := poisoner.iface.GatewayIP
 	ourMAC := poisoner.iface.HardwareAddr
 
-	arpPacket := arp.GetARPReplyPacket(gatewayIP, ourMAC, victimIP, victimMAC)
+	arpPacket := arp.NewARPReplyPacket(gatewayIP, ourMAC, victimIP, victimMAC)
 	err := poisoner.handle.WritePacketData(arpPacket)
 	if err != nil {
 		panic(err)
@@ -73,7 +73,7 @@ func (poisoner *Poisoner) sendHealingARP(victimIP net.IP, victimMAC net.Hardware
 	gatewayIP := poisoner.iface.GatewayIP
 	gatewayMAC := poisoner.gatewayMAC
 
-	arpPacket := arp.GetARPReplyPacket(gatewayIP, gatewayMAC, victimIP, victimMAC)
+	arpPacket := arp.NewARPReplyPacket(gatewayIP, gatewayMAC, victimIP, victimMAC)
 	err := poisoner.handle.WritePacketData(arpPacket)
 	if err != nil {
 		panic(err)

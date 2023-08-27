@@ -15,12 +15,12 @@ const dbFilename = "logs.db"
 
 func main() {
 	validIface := iface.GetSingleIface()
-	repository := persistance.CreateSQLite(dbFilename)
+	repository := persistance.NewSQLite(dbFilename)
 
 	scanner := lanscanner.NewScanner(validIface)
-	uiProgram := ui.GetProgram(validIface)
+	uiProgram := ui.NewProgram(validIface)
 
-	dnsModule := modules.CreateDNSModule(repository)
+	dnsModule := modules.NewDNS(repository)
 	sniffingModules := []sniffer.Module{dnsModule}
 
 	if sniffer.IsRoot() {

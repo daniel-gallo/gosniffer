@@ -14,10 +14,15 @@ type tabModel struct {
 	activeTab int
 }
 
-const (
-	NumRows = 10
-	UIWidth = 90
-)
+func newTabModel(iface iface.Iface) tabModel {
+	tabs := [2]string{"LAN", "Sniffer logs"}
+	tabModules := [2]tea.Model{
+		newLANModel(iface),
+		newLogsModel(),
+	}
+
+	return tabModel{tabNames: tabs, tabModels: tabModules}
+}
 
 func (m tabModel) Init() tea.Cmd {
 	return nil
@@ -110,18 +115,6 @@ func (m tabModel) View() string {
 	doc.WriteString("\n")
 	doc.WriteString(windowStyle.Width(lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize()).Render(m.tabModels[m.activeTab].View()))
 	return docStyle.Render(doc.String())
-}
-
-func GetProgram(iface iface.Iface) *tea.Program {
-	tabs := [2]string{"LAN", "Sniffer logs"}
-	tabModules := [2]tea.Model{
-		GetLANModel(iface),
-		GetLogsModel(),
-	}
-	m := tabModel{tabNames: tabs, tabModels: tabModules}
-
-	return tea.NewProgram(m)
-
 }
 
 func max(a, b int) int {

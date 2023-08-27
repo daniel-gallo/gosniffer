@@ -52,7 +52,7 @@ func (scanner *Scanner) Scan(callback func(devices DeviceList)) {
 
 func (scanner *Scanner) sendARPBroadcast(handle *pcap.Handle) {
 	for _, ip := range scanner.iface.GetAllIPs() {
-		arpPacket := arp.GetARPRequestPacket(scanner.iface.IPAddr, scanner.iface.HardwareAddr, ip)
+		arpPacket := arp.NewARPRequestPacket(scanner.iface.IPAddr, scanner.iface.HardwareAddr, ip)
 
 		err := handle.WritePacketData(arpPacket)
 		if err != nil {

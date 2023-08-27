@@ -12,7 +12,7 @@ type DNS struct {
 	repository persistance.Repository
 }
 
-func CreateDNSModule(repository persistance.Repository) DNS {
+func NewDNS(repository persistance.Repository) DNS {
 	return DNS{repository}
 }
 

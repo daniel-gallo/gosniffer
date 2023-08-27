@@ -14,7 +14,7 @@ type logsModel struct {
 
 type LogMessage []persistance.Log
 
-func GetLogsModel() tea.Model {
+func newLogsModel() tea.Model {
 	columns := []table.Column{
 		{Title: "Module", Width: 6},
 		{Title: "When", Width: 14},

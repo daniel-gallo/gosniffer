@@ -33,7 +33,7 @@ ORDER BY id DESC
 LIMIT ?
 `
 
-func CreateSQLite(filename string) SQLite {
+func NewSQLite(filename string) SQLite {
 	db, err := sql.Open("sqlite3", filename)
 	if err != nil {
 		panic(err)

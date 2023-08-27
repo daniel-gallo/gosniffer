@@ -11,7 +11,7 @@ import (
 	"net"
 )
 
-type LAN struct {
+type lanModel struct {
 	iface    iface.Iface
 	poisoner *poisoner.Poisoner
 
@@ -26,7 +26,7 @@ const (
 	thisDeviceStatus = "US"
 )
 
-func GetLANModel(iface iface.Iface) tea.Model {
+func newLANModel(iface iface.Iface) lanModel {
 	columns := []table.Column{
 		{Title: "Status", Width: 9},
 		{Title: "IP", Width: 15},
@@ -41,14 +41,14 @@ func GetLANModel(iface iface.Iface) tea.Model {
 		table.WithHeight(NumRows),
 	)
 
-	return LAN{iface, nil, t, map[string]struct{}{}}
+	return lanModel{iface, nil, t, map[string]struct{}{}}
 }
 
-func (m LAN) Init() tea.Cmd {
+func (m lanModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m LAN) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m lanModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -71,13 +71,13 @@ func (m LAN) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m LAN) View() string {
+func (m lanModel) View() string {
 	s := fmt.Sprintf("# devices found: %d\n", len(m.table.Rows()))
 	s += m.table.View()
 	return s
 }
 
-func (m LAN) unPoisonEveryone() {
+func (m lanModel) unPoisonEveryone() {
 	for _, row := range m.table.Rows() {
 		ipAsString := row[1]
 		macAsString := row[2]
@@ -95,7 +95,7 @@ func (m LAN) unPoisonEveryone() {
 	}
 }
 
-func (m LAN) togglePoisoning() (tea.Model, tea.Cmd) {
+func (m lanModel) togglePoisoning() (tea.Model, tea.Cmd) {
 	idx := m.table.Cursor()
 	selectedRow := m.table.SelectedRow()
 	status := selectedRow[0]
@@ -122,7 +122,7 @@ func (m LAN) togglePoisoning() (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m LAN) updateDeviceList(deviceList lanscanner.DeviceList) (tea.Model, tea.Cmd) {
+func (m lanModel) updateDeviceList(deviceList lanscanner.DeviceList) (tea.Model, tea.Cmd) {
 	newRows := make([]table.Row, len(deviceList))
 
 	selectedRow := m.table.SelectedRow()
@@ -167,7 +167,7 @@ func (m LAN) updateDeviceList(deviceList lanscanner.DeviceList) (tea.Model, tea.
 	return m, nil
 }
 
-func (m LAN) getStatus(ip net.IP, mac net.HardwareAddr) string {
+func (m lanModel) getStatus(ip net.IP, mac net.HardwareAddr) string {
 	if m.iface.GatewayIP.String() == ip.String() {
 		return gatewayStatus
 	}

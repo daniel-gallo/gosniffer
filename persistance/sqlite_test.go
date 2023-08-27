@@ -15,7 +15,7 @@ var (
 
 func TestSQLitePersistence(t *testing.T) {
 	tmpFolder := t.TempDir()
-	sqlite := CreateSQLite(tmpFolder + "/test.db")
+	sqlite := NewSQLite(tmpFolder + "/test.db")
 	sqlite.Save(module, ip, mac, message)
 
 	logs := sqlite.Load(1)
@@ -44,7 +44,7 @@ func TestSQLitePersistence(t *testing.T) {
 
 func TestSQLiteLoadLimit(t *testing.T) {
 	tmpFolder := t.TempDir()
-	sqlite := CreateSQLite(tmpFolder + "/test.db")
+	sqlite := NewSQLite(tmpFolder + "/test.db")
 	numLogsInDb := 10
 	numLogsToRetrieve := 5
 
