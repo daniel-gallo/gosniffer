@@ -12,7 +12,7 @@ func TestGetManufacturer(t *testing.T) {
 		mac                  net.HardwareAddr
 		expectedManufacturer string
 	}{
-		{net.HardwareAddr{0xdc, 0x44, 0x27, 0x10, 0x00, 0x00}, "Tesla,Inc."},
+		{net.HardwareAddr{0xe8, 0xf7, 0x91, 0x00, 0x00, 0x00}, "Xiaomi Communications Co Ltd"},
 		{net.HardwareAddr{0xf4, 0xf5, 0xd8, 0x00, 0x00, 0x00}, "Google, Inc."},
 		{net.HardwareAddr{0x4c, 0x4f, 0xee, 0x00, 0x00, 0x00}, "OnePlus Technology (Shenzhen) Co., Ltd"},
 	}
