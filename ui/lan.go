@@ -31,7 +31,7 @@ func newLANModel(iface iface.Iface) lanModel {
 		{Title: "Status", Width: 9},
 		{Title: "IP", Width: 15},
 		{Title: "MAC", Width: 17},
-		{Title: "Manufacturer", Width: 40},
+		{Title: "Manufacturer", Width: 50},
 	}
 
 	t := table.New(

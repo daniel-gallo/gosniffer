@@ -18,8 +18,8 @@ func newLogsModel() tea.Model {
 	columns := []table.Column{
 		{Title: "Module", Width: 6},
 		{Title: "When", Width: 14},
-		{Title: "IP", Width: 16},
-		{Title: "Message", Width: 40},
+		{Title: "IP", Width: 30},
+		{Title: "Message", Width: 50},
 	}
 
 	// Don't highlight selected row

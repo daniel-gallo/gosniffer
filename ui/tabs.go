@@ -103,7 +103,7 @@ func (m tabModel) View() string {
 			border.BottomRight = "┤"
 		}
 		style = style.Border(border)
-		namePadding := UIWidth/len(m.tabNames) - lipgloss.Width(t)
+		namePadding := Width/len(m.tabNames) - lipgloss.Width(t)
 		if namePadding < 0 {
 			namePadding = 0
 		}
