@@ -5,7 +5,7 @@ import (
 	"gosniffer/iface"
 )
 
-func Sniff(iface iface.Iface, modules []Module) {
+func Sniff(iface iface.Iface, modules []Module, ignoreOwnPackets bool) {
 	handle := iface.GetHandle()
 
 	bpfFilter := combineBpfFilters(modules)
@@ -16,6 +16,11 @@ func Sniff(iface iface.Iface, modules []Module) {
 
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	for packet := range packetSource.Packets() {
+		isOwnPacket := GetMACAddress(packet).String() == iface.HardwareAddr.String()
+		if ignoreOwnPackets && isOwnPacket {
+			continue
+		}
+
 		for _, module := range modules {
 			module.ProcessPacket(packet)
 		}

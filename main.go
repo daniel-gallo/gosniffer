@@ -43,7 +43,7 @@ func main() {
 	}()
 
 	go func() {
-		sniffer.Sniff(validIface, sniffingModules)
+		sniffer.Sniff(validIface, sniffingModules, true)
 	}()
 
 	_, err := uiProgram.Run()
