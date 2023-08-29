@@ -2,6 +2,8 @@ package lanscanner
 
 import (
 	"net"
+	"slices"
+	"sort"
 	"testing"
 )
 
@@ -22,6 +24,20 @@ func TestGetManufacturer(t *testing.T) {
 
 		if actualManufacturer != testCase.expectedManufacturer {
 			t.Errorf("Expecting %s but got %s\n", testCase.expectedManufacturer, actualManufacturer)
+		}
+	}
+}
+
+func TestPrefixLengths(t *testing.T) {
+	if !sort.IsSorted(sort.Reverse(sort.IntSlice(PrefixLengths))) {
+		t.Errorf("PrefixLengths should be ordered in reverse order (concrete prefixes should be tried first)")
+	}
+
+	for macPrefix, _ := range GetMACToManufacturer() {
+		macPrefixLength := len(macPrefix)
+
+		if !slices.Contains(PrefixLengths, macPrefixLength) {
+			t.Errorf("PrefixLengths should contain %v, since %v has length %v", macPrefixLength, macPrefix, macPrefixLength)
 		}
 	}
 }

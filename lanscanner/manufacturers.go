@@ -9,6 +9,9 @@ import (
 	"strings"
 )
 
+// PrefixLengths GetManufacturer will try more concrete prefixes (i.e. longer) first
+var PrefixLengths = []int{17, 14, 11, 8, 5}
+
 func GetMACToManufacturer() map[string]string {
 	macToManufacturer := make(map[string]string)
 
@@ -40,19 +43,11 @@ func GetMACToManufacturer() map[string]string {
 func GetManufacturer(macToManufacturer map[string]string, mac net.HardwareAddr) string {
 	macAsString := mac.String()
 
-	manufacturer, ok := macToManufacturer[macAsString[:13]]
-	if ok {
-		return manufacturer
-	}
-
-	manufacturer, ok = macToManufacturer[macAsString[:10]]
-	if ok {
-		return manufacturer
-	}
-
-	manufacturer, ok = macToManufacturer[macAsString[:8]]
-	if ok {
-		return manufacturer
+	for _, prefixLength := range PrefixLengths {
+		manufacturer, ok := macToManufacturer[macAsString[:prefixLength]]
+		if ok {
+			return manufacturer
+		}
 	}
 
 	return ""
