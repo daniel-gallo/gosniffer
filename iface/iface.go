@@ -2,10 +2,12 @@ package iface
 
 import (
 	"encoding/binary"
-	"github.com/google/gopacket/pcap"
-	"github.com/jackpal/gateway"
+	"fmt"
 	"net"
 	"time"
+
+	"github.com/google/gopacket/pcap"
+	"github.com/jackpal/gateway"
 )
 
 const (
@@ -74,15 +76,19 @@ func GetIfaces() []Iface {
 	return filteredIfaces
 }
 
-func GetSingleIface() Iface {
+func GetIface(ifaceName string) Iface {
 	ifaces := GetIfaces()
-	if len(ifaces) == 0 {
-		panic("There are no valid interfaces")
-	} else if len(ifaces) > 1 {
-		panic("There are more than one valid interfaces")
+	ifaceNames := make([]string, len(ifaces))
+
+	for i, iface := range ifaces {
+		if iface.Name == ifaceName {
+			return iface
+		}
+
+		ifaceNames[i] = iface.Name
 	}
 
-	return ifaces[0]
+	panic(fmt.Sprintf("Interface %s not found (available interfaces: %v)\n", ifaceName, ifaceNames))
 }
 
 func (iface Iface) GetAllIPs() []net.IP {

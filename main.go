@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"gosniffer/iface"
 	"gosniffer/lanscanner"
@@ -14,7 +15,10 @@ import (
 const dbFilename = "logs.db"
 
 func main() {
-	validIface := iface.GetSingleIface()
+	ifaceName := flag.String("iface", "en0", "Interface name")
+	flag.Parse()
+
+	validIface := iface.GetIface(*ifaceName)
 	repository := persistance.NewSQLite(dbFilename)
 
 	scanner := lanscanner.NewScanner(validIface)
